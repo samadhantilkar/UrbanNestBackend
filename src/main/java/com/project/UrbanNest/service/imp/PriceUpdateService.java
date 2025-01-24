@@ -1,4 +1,4 @@
-package com.project.UrbanNest.service;
+package com.project.UrbanNest.service.imp;
 
 import com.project.UrbanNest.entity.Hotel;
 import com.project.UrbanNest.entity.HotelMinPrice;
@@ -36,7 +36,7 @@ public class PriceUpdateService  {
     private final HotelMinPriceRepository hotelMinPriceRepository;
     private final PricingService pricingService;
 
-    @Scheduled(cron = " */5 * * * * *")
+    @Scheduled(cron = " 0 */10 * * * *")
     public void updatePrices(){
         int page= 0;
         int batchSize=100;

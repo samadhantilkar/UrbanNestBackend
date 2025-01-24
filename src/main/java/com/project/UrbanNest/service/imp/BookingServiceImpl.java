@@ -1,4 +1,4 @@
-package com.project.UrbanNest.service;
+package com.project.UrbanNest.service.imp;
 
 import com.project.UrbanNest.dto.BookingDto;
 import com.project.UrbanNest.dto.BookingRequestDto;
@@ -6,15 +6,17 @@ import com.project.UrbanNest.dto.GuestDto;
 import com.project.UrbanNest.entity.*;
 import com.project.UrbanNest.entity.enums.BookingStatus;
 import com.project.UrbanNest.exception.ResourceNotFoundException;
+import com.project.UrbanNest.exception.UnAuthorisedException;
 import com.project.UrbanNest.repository.*;
+import com.project.UrbanNest.service.BookingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -23,7 +25,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class BookingServiceImpl implements BookingService{
+public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final HotelRepository hotelRepository;
@@ -80,7 +82,14 @@ public class BookingServiceImpl implements BookingService{
     @Transactional
     public BookingDto addGuests(Long bookingId, List<GuestDto> guestDtosList) {
         log.info("Adding guest for booking with id:{}",bookingId);
+
         Booking booking=getBookingById(bookingId);
+
+        User user=getCurrentUser();
+
+        if(!user.equals(booking.getUser())) {
+            throw new UnAuthorisedException("Booking Does Not Belong to this user with id: "  +user.getId());
+        }
 
         if(hasBookingExpired(booking)){
             throw new IllegalStateException("Booking Has Already expired");
@@ -92,7 +101,7 @@ public class BookingServiceImpl implements BookingService{
 
         for(GuestDto guestDto:guestDtosList){
             Guest guest=modelMapper.map(guestDto,Guest.class);
-            guest.setUser(getCurrentUser());
+            guest.setUser(user);
             guest=guestRepository.save(guest);
             booking.getGuests().add(guest);
         }
@@ -104,9 +113,7 @@ public class BookingServiceImpl implements BookingService{
     }
 
     private User getCurrentUser(){
-        User user=new User();
-        user.setId(1L);
-        return user;// TODO: Remove Dummy User
+        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
     private Boolean hasBookingExpired(Booking booking){

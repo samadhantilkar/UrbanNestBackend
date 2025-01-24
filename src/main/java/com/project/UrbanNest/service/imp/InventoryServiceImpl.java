@@ -1,14 +1,12 @@
-package com.project.UrbanNest.service;
+package com.project.UrbanNest.service.imp;
 
-import com.project.UrbanNest.dto.HotelDto;
 import com.project.UrbanNest.dto.HotelPriceDto;
 import com.project.UrbanNest.dto.HotelSearchRequest;
-import com.project.UrbanNest.entity.Hotel;
-import com.project.UrbanNest.entity.HotelMinPrice;
 import com.project.UrbanNest.entity.Inventory;
 import com.project.UrbanNest.entity.Room;
 import com.project.UrbanNest.repository.HotelMinPriceRepository;
 import com.project.UrbanNest.repository.InventoryRepository;
+import com.project.UrbanNest.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -16,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,7 +22,7 @@ import java.time.temporal.ChronoUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class InventoryServiceImpl implements InventoryService{
+public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final HotelMinPriceRepository hotelMinPriceRepository;

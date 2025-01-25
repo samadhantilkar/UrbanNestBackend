@@ -48,4 +48,7 @@ public class Booking extends BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "guest_id")
     )
     private Set<Guest> guests;
+
+    @Column(unique = true)
+    private String paymentSessionId;
 }

@@ -9,6 +9,7 @@ import com.project.UrbanNest.entity.enums.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -25,4 +26,6 @@ public class BookingDto  {
     private BookingStatus bookingStatus;
 
     private Set<GuestDto> guests;
+
+    private BigDecimal amount;
 }

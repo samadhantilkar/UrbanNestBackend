@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.project.UrbanNest.util.AppUtils.getCurrentUser;
+
 
 @Service
 @RequiredArgsConstructor
@@ -89,6 +91,27 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.delete(room);
     }
 
+    @Override
+    @Transactional
+    public RoomDto updateRoomById(Long hotelId, Long roomId, RoomDto roomDto) {
+        log.info("Updating the room with Id: {}",roomId );
+        Hotel hotel=getHotelById(hotelId);
+        User user=getCurrentUser();
+        if(!user.equals(hotel.getOwner())){
+            throw new UnAuthorisedException("This user does not own this hotel with ID: "+ hotelId);
+        }
+
+        Room room=getRoomByID(roomId);
+
+        modelMapper.map(roomDto,room);
+        room.setId(roomId);
+
+        //TODO: if price or inventory is updated, then update the inventory for this room
+        room = roomRepository.save(room);
+
+        return modelMapper.map(room, RoomDto.class);
+    }
+
     private Hotel getHotelById(Long Id){
         log.info("Getting the hotel with ID:{}",Id);
         return hotelRepository.findById(Id)
@@ -99,10 +122,6 @@ public class RoomServiceImpl implements RoomService {
         return roomRepository
                 .findById(roomId)
                 .orElseThrow(()-> new ResourceNotFoundException("Room Not Found With ID:"+roomId));
-    }
-
-    private User getCurrentUser(){
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
 }

@@ -20,6 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.project.UrbanNest.util.AppUtils.getCurrentUser;
 
 @Service
 @Slf4j
@@ -126,13 +129,22 @@ public class HotelServiceImpl implements HotelService {
         return new HotelInfoDto(modelMapper.map(hotel,HotelDto.class),rooms);
     }
 
+    @Override
+    public List<HotelDto> getAllHotels() {
+        User user=getCurrentUser();
+        log.info("Getting all hotels for the admin user with Id: {}",user.getId());
+
+        List<Hotel> hotels=hotelRepository.findByOwner(user);
+        return hotels.stream()
+                .map(hotel -> modelMapper.map(hotel,HotelDto.class))
+                .collect(Collectors.toList());
+    }
+
     private Hotel findHotelById(Long id){
         return hotelRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Hotel not found with ID="+id));
     }
 
-    private User getCurrentUser(){
-        return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
+
 
 }

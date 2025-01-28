@@ -36,7 +36,7 @@ public class AuthService {
             throw new RuntimeException("User is already present with same email id:"+signUpRequestDto.getEmail());
         }
         User newUser=modelMapper.map(signUpRequestDto,User.class);
-        newUser.setRoles(Set.of(Role.GUEST));
+        newUser.getRoles().add(Role.GUEST);
         newUser.setPassword(passwordEncoder.encode(signUpRequestDto.getPassword()));
         userRepository.save(newUser);
 

@@ -22,7 +22,9 @@ public class WebhookController {
     @PostMapping("/payment")
     public ResponseEntity<Void> capturePayment(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader){
         try{
+            //to check only stripe is calling this url
             Event event= Webhook.constructEvent(payload,sigHeader,endpointSecret);
+
             bookingService.capturePayment(event);
             return ResponseEntity.noContent().build();
 

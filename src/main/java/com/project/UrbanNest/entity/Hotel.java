@@ -33,7 +33,7 @@ public class Hotel extends BaseEntity{
 
     private Boolean active;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private User owner;
 
 }

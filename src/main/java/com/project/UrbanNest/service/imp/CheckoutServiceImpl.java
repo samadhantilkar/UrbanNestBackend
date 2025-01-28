@@ -11,10 +11,11 @@ import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static com.project.UrbanNest.util.AppUtils.getCurrentUser;
 
 
 @Service
@@ -27,7 +28,7 @@ public class CheckoutServiceImpl implements CheckoutService {
     @Override
     public String getCheckoutSession(Booking booking, String successUrl, String failureUrl) {
         log.info("Creating session for booking with Id: {}",booking.getId());
-        User user=(User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user=getCurrentUser();
 
         try{
             CustomerCreateParams customerCreateParams= CustomerCreateParams.builder()
@@ -52,7 +53,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                                                     .setUnitAmount(booking.getAmount().multiply(BigDecimal.valueOf(100)).longValue())
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName(booking.getHotel().getName() +" "+ booking.getRoom().getType())
+                                                                    .setName(booking.getHotel().getName() +" : "+ booking.getRoom().getType())
                                                                     .setDescription("Booking ID: "+booking.getId())
                                                                     .build()
                                                     )

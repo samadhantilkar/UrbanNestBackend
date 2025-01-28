@@ -45,7 +45,8 @@ public class HotelBookingController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{bookingId}/status")
+    //front end polling this every 3/4 second to check if this booking is successful or not
+   @GetMapping("/{bookingId}/status")
     public ResponseEntity<Map<String, String>> getBookingStatus(@PathVariable Long bookingId){
         return ResponseEntity.ok(Map.of("status",bookingService.getBookingStatus(bookingId)));
     }

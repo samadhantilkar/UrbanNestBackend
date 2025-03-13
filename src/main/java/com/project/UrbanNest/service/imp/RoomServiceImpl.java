@@ -97,6 +97,7 @@ public class RoomServiceImpl implements RoomService {
         log.info("Updating the room with Id: {}",roomId );
         Hotel hotel=getHotelById(hotelId);
         User user=getCurrentUser();
+
         if(!user.equals(hotel.getOwner())){
             throw new UnAuthorisedException("This user does not own this hotel with ID: "+ hotelId);
         }

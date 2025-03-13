@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 @Builder
 @AllArgsConstructor
+@ToString
 @NoArgsConstructor
 public class Booking extends BaseEntity {
 

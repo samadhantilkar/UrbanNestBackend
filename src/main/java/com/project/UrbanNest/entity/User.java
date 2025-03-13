@@ -10,7 +10,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,7 +17,7 @@ import java.util.stream.Collectors;
 @Setter
 @Entity
 @Table(name = "users")
-@ToString(callSuper = true,exclude = {"roles"})
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

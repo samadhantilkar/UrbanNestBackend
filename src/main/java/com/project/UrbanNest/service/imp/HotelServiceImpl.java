@@ -132,6 +132,7 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public List<HotelDto> getAllHotels() {
         User user=getCurrentUser();
+
         log.info("Getting all hotels for the admin user with Id: {}",user.getId());
 
         List<Hotel> hotels=hotelRepository.findByOwner(user);

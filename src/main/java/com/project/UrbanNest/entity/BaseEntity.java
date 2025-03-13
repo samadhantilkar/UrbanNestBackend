@@ -2,6 +2,7 @@ package com.project.UrbanNest.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -14,8 +15,6 @@ import java.util.Objects;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
 public class BaseEntity {
 
     @Id

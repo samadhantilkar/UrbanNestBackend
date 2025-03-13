@@ -86,14 +86,16 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public List<InventoryDto> getAllInventoryByRoom(Long roomId) throws AccessDeniedException{
-        log.info("Getting all inventory by room for room with Id: ",roomId);
+
+        log.info("Getting all inventory by room for room with Id: {}",roomId);
         Room room = getRoomByID(roomId);
         User user=getCurrentUser();
 
         if(user.equals(room.getHotel().getRooms())) throw new AccessDeniedException("You are not the owner of room with Id: "+roomId);
 
         return inventoryRepository.findByRoomOrderByDate(room).stream()
-                .map(inventory -> modelMapper.map(inventory, InventoryDto.class))
+                .map(inventory ->
+                        modelMapper.map(inventory, InventoryDto.class))
                 .collect(Collectors.toList());
     }
 

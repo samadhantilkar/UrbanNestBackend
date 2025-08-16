@@ -21,12 +21,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -104,7 +104,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto addGuests(Long bookingId, List<GuestDto> guestDtosList) {
         log.info("Adding guest for booking with id:{}",bookingId);
 
-        Booking booking=getBookingById(bookingId);
+        Booking booking=bookingRepository.findById(bookingId).orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id:"+bookingId)
+        );
 
         User user=getCurrentUser();
 
@@ -137,7 +139,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public String initiatePayment(Long bookingId) {
 
-        Booking booking=getBookingById(bookingId);
+        Booking booking=bookingRepository.findById(bookingId).orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id:"+bookingId)
+        );
         User user=getCurrentUser();
 
         if(!user.equals(booking.getUser())){
@@ -190,7 +194,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public void cancelBooking(Long bookingId){
-        Booking booking=getBookingById(bookingId);
+        Booking booking=bookingRepository.findById(bookingId).orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id:"+bookingId)
+        );
         User user=getCurrentUser();
 
         if(!user.equals(booking.getUser())){
@@ -226,7 +232,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public String  getBookingStatus(Long bookingId) {
-        Booking booking=getBookingById(bookingId);
+        Booking booking=bookingRepository.findById(bookingId).orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id:"+bookingId)
+        );
         User user=getCurrentUser();
 
         if(!user.equals(booking.getUser())){
@@ -237,7 +245,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByHotelId(Long hotelId) throws AccessDeniedException {
+    public List<BookingDto> getAllBookingsByHotelId(Long hotelId)  {
 
         Hotel hotel=hotelRepository.findById(hotelId)
                 .orElseThrow(()-> new ResourceNotFoundException("Hotel not found with id: "+hotelId));
@@ -258,7 +266,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate) throws AccessDeniedException{
+    public HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate){
         User user=getCurrentUser();
 
         Hotel hotel=hotelRepository.findById(hotelId).orElseThrow(()-> new ResourceNotFoundException("Hotel not found with Id: "+hotelId));
@@ -296,13 +304,24 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public BookingDto getBookingById(Long bookingId){
+        Booking booking=bookingRepository.findById(bookingId).orElseThrow(
+                () -> new ResourceNotFoundException("Booking not found with id:"+bookingId)
+        );
+        User user=getCurrentUser();
+
+        if(!user.equals(booking.getUser())){
+            throw new UnAuthorisedException("Booking does not belong to this user with id:"+user.getId());
+        }
+
+        return modelMapper.map(booking,BookingDto.class);
+    }
+
     private Boolean hasBookingExpired(Booking booking){
         return booking.getCreatedAt().plusMinutes(10).isBefore(LocalDateTime.now());
     }
 
-    private Booking     getBookingById(Long id){
-        return bookingRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Booking not found with ID:"+id));
-    }
 
     private Room getRoomById(Long id){
         return roomRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Room not found with ID:"+id));

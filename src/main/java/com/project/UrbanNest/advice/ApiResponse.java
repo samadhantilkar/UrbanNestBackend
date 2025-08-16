@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class ApiResponse<T> {
+    
     private LocalDateTime timestamp;
     private T Data;
     private ApiError error;

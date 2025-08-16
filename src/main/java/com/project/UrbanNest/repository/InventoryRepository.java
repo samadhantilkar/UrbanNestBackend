@@ -1,5 +1,6 @@
 package com.project.UrbanNest.repository;
 
+import com.project.UrbanNest.dto.RoomPriceDto;
 import com.project.UrbanNest.entity.Hotel;
 import com.project.UrbanNest.entity.Inventory;
 import com.project.UrbanNest.entity.Room;
@@ -45,7 +46,7 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
             SELECT i
             FROM Inventory i
             WHERE i.room.id = :roomId
-                AND i.date BETWEEN :startDate AND :endDate 
+                AND i.date BETWEEN :startDate AND :endDate
                 AND i.closed = false
                 AND (i.totalCount - i.bookedCount - i.reservedCount) >= :roomsCount
             """)
@@ -145,27 +146,27 @@ public interface InventoryRepository extends JpaRepository<Inventory, Long> {
                          @Param("closed") boolean closed,
                          @Param("surgeFactor")BigDecimal surgeFactor);
 
-//    @Query("""
-//       SELECT new com.codingshuttle.projects.airBnbApp.dto.RoomPriceDto(
-//            i.room,
-//            CASE
-//                WHEN COUNT(i) = :dateCount THEN AVG(i.price)
-//                ELSE NULL
-//            END
-//        )
-//       FROM Inventory i
-//       WHERE i.hotel.id = :hotelId
-//             AND i.date BETWEEN :startDate AND :endDate
-//             AND (i.totalCount - i.bookedCount) >= :roomsCount
-//             AND i.closed = false
-//       GROUP BY i.room
-//       """)
-//    List<RoomPriceDto> findRoomAveragePrice(
-//            @Param("hotelId") Long hotelId,
-//            @Param("startDate") LocalDate startDate,
-//            @Param("endDate") LocalDate endDate,
-//            @Param("roomsCount") Long roomsCount,
-//            @Param("dateCount") Long dateCount
-//    );
+    @Query("""
+       SELECT new com.project.UrbanNest.dto.RoomPriceDto(
+            i.room,
+            CASE
+                WHEN COUNT(i) = :dateCount THEN AVG(i.price)
+                ELSE NULL
+            END
+        )
+       FROM Inventory i
+       WHERE i.hotel.id = :hotelId
+             AND i.date BETWEEN :startDate AND :endDate
+             AND (i.totalCount - i.bookedCount) >= :roomsCount
+             AND i.closed = false
+       GROUP BY i.room
+       """)
+    List<RoomPriceDto> findRoomAveragePrice(
+            @Param("hotelId") Long hotelId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("roomsCount") Long roomsCount,
+            @Param("dateCount") Long dateCount
+    );
 
 }

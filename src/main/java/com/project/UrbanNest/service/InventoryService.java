@@ -1,7 +1,6 @@
 package com.project.UrbanNest.service;
 
 import com.project.UrbanNest.dto.*;
-import com.project.UrbanNest.entity.HotelMinPrice;
 import com.project.UrbanNest.entity.Room;
 import org.springframework.data.domain.Page;
 
@@ -14,9 +13,9 @@ public interface InventoryService  {
 
     void deleteAllInventories(Room room);
 
-    Page<HotelPriceDto> searchHotel(HotelSearchRequest hotelSearchRequest);
+    Page<HotelPriceResponseDto> searchHotel(HotelSearchRequest hotelSearchRequest);
 
-    List<InventoryDto> getAllInventoryByRoom(Long roomId) throws AccessDeniedException;
+    List<InventoryDto> getAllInventoryByRoom(Long roomId);
 
-    void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto) throws AccessDeniedException;
+    void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto);
 }

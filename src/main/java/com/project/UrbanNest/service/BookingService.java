@@ -4,13 +4,10 @@ import com.project.UrbanNest.dto.BookingDto;
 import com.project.UrbanNest.dto.BookingRequestDto;
 import com.project.UrbanNest.dto.GuestDto;
 import com.project.UrbanNest.dto.HotelReportDto;
-import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
 public interface BookingService {
 
@@ -22,13 +19,15 @@ public interface BookingService {
 
     void capturePayment(Event event);
 
-    void cancelBooking(Long bookingId) throws StripeException;
+    void cancelBooking(Long bookingId);
+
+    BookingDto getBookingById(Long bookingId);
 
     String getBookingStatus(Long bookingId);
 
-    List<BookingDto> getAllBookingsByHotelId(Long hotelId) throws AccessDeniedException;
+    List<BookingDto> getAllBookingsByHotelId(Long hotelId);
 
-    HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate) throws AccessDeniedException;
+    HotelReportDto getHotelReport(Long hotelId, LocalDate startDate, LocalDate endDate);
 
     List<BookingDto> getMyBookings();
 }

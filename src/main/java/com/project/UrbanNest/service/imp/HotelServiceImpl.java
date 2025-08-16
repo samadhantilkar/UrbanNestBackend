@@ -1,24 +1,23 @@
 package com.project.UrbanNest.service.imp;
 
-import com.project.UrbanNest.dto.HotelDto;
-import com.project.UrbanNest.dto.HotelInfoDto;
-import com.project.UrbanNest.dto.RoomDto;
+import com.project.UrbanNest.dto.*;
 import com.project.UrbanNest.entity.Hotel;
 import com.project.UrbanNest.entity.Room;
 import com.project.UrbanNest.entity.User;
 import com.project.UrbanNest.exception.ResourceNotFoundException;
 import com.project.UrbanNest.exception.UnAuthorisedException;
 import com.project.UrbanNest.repository.HotelRepository;
+import com.project.UrbanNest.repository.InventoryRepository;
 import com.project.UrbanNest.repository.RoomRepository;
 import com.project.UrbanNest.service.HotelService;
 import com.project.UrbanNest.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,7 @@ import static com.project.UrbanNest.util.AppUtils.getCurrentUser;
 @Slf4j
 @RequiredArgsConstructor
 public class HotelServiceImpl implements HotelService {
+    private final InventoryRepository inventoryRepository;
 
     private final HotelRepository hotelRepository;
     private final ModelMapper modelMapper;
@@ -120,12 +120,23 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public HotelInfoDto getHotelInfoById(Long hotelId) {
+    public HotelInfoDto getHotelInfoById(Long hotelId, HotelInfoRequestDto hotelInfoRequestDto) {
         Hotel hotel=findHotelById(hotelId);
-        List<RoomDto> rooms= hotel.getRooms()
-                .stream()
-                .map((element) -> modelMapper.map(element, RoomDto.class))
-                .toList();
+
+        Long daysCount= ChronoUnit.DAYS.between(hotelInfoRequestDto.getStartDate(),hotelInfoRequestDto.getEndDate())+1;
+
+        List<RoomPriceDto> roomPriceDtoList=inventoryRepository.findRoomAveragePrice(hotelId,
+                hotelInfoRequestDto.getStartDate(),hotelInfoRequestDto.getEndDate(),
+                hotelInfoRequestDto.getRoomsCount(),daysCount);
+
+        List<RoomPriceResponseDto> rooms=roomPriceDtoList.stream()
+                .map(roomPriceDto ->{
+                    RoomPriceResponseDto roomPriceResponseDto=modelMapper.map(roomPriceDto.getRoom(),
+                            RoomPriceResponseDto.class);
+                    roomPriceResponseDto.setPrice(roomPriceDto.getPrice());
+                    return roomPriceResponseDto;
+                })
+                .collect(Collectors.toList());
         return new HotelInfoDto(modelMapper.map(hotel,HotelDto.class),rooms);
     }
 

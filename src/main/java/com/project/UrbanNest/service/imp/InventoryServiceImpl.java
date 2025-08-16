@@ -1,9 +1,6 @@
 package com.project.UrbanNest.service.imp;
 
-import com.project.UrbanNest.dto.HotelPriceDto;
-import com.project.UrbanNest.dto.HotelSearchRequest;
-import com.project.UrbanNest.dto.InventoryDto;
-import com.project.UrbanNest.dto.UpdateInventoryRequestDto;
+import com.project.UrbanNest.dto.*;
 import com.project.UrbanNest.entity.Inventory;
 import com.project.UrbanNest.entity.Room;
 import com.project.UrbanNest.entity.User;
@@ -18,11 +15,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -70,22 +67,29 @@ public class InventoryServiceImpl implements InventoryService {
 
 //    @Transactional
     @Override
-    public Page<HotelPriceDto> searchHotel(HotelSearchRequest hotelSearchRequest) {
+    public Page<HotelPriceResponseDto> searchHotel(HotelSearchRequest hotelSearchRequest) {
         log.info("Searching Hotel for {} City from, {} to {} ", hotelSearchRequest.getCity(), hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate());
+
         Pageable pageable= PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
+
         Long dateCount=
                 ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(),hotelSearchRequest.getEndDate())+1;
 
             // business logic - 90days
-        Page<HotelPriceDto> hotelPage=hotelMinPriceRepository.findHotelsWithAvailableInventory(hotelSearchRequest.getCity()
+        Page<HotelPriceDto> hotelPage=
+                hotelMinPriceRepository.findHotelsWithAvailableInventory(hotelSearchRequest.getCity()
                 , hotelSearchRequest.getStartDate(),  hotelSearchRequest.getEndDate(), hotelSearchRequest.getRoomsCount(),
                 dateCount, pageable);
-        return hotelPage;
-//        return null;
+
+        return hotelPage.map(hotelPriceDto -> {
+            HotelPriceResponseDto hotelPriceResponseDto=modelMapper.map(hotelPriceDto.getHotel(),HotelPriceResponseDto.class);
+            hotelPriceResponseDto.setPrice(hotelPriceDto.getPrice());
+            return hotelPriceResponseDto;
+        });
     }
 
     @Override
-    public List<InventoryDto> getAllInventoryByRoom(Long roomId) throws AccessDeniedException{
+    public List<InventoryDto> getAllInventoryByRoom(Long roomId) {
 
         log.info("Getting all inventory by room for room with Id: {}",roomId);
         Room room = getRoomByID(roomId);
@@ -101,7 +105,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     @Transactional
-    public void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto) throws AccessDeniedException{
+    public void updateInventory(Long roomId, UpdateInventoryRequestDto updateInventoryRequestDto) {
        log.info("Updating All inventory by room for room with Id: {} between date range: {} - {} ",roomId,
                updateInventoryRequestDto.getStartDate(),updateInventoryRequestDto.getEndDate());
 
